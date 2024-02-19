@@ -3,12 +3,22 @@ const {
   createProduct,
   getAllProducts,
   addToWishList,
+  deleteProduct,
+  updateProduct,
+  getAProducts,
+  searchProducts,
+  filteredProducts,
 } = require("../controllers/productCtrl");
 const router = express.Router();
-const { authMiddleware } = require("../middlewares/authMiddleware");
+const jwtverify = require("../middlewares/jwtverify");
 
 router.post("/", createProduct);
 router.get("/", getAllProducts);
-router.put("/wishlist", authMiddleware, addToWishList);
+router.get("/search/:keyword", searchProducts);
+router.post("/get-filtered-products", filteredProducts);
+router.get("/:id", jwtverify, getAProducts);
+router.put("/wishlist", addToWishList);
+router.delete("/:id", deleteProduct);
+router.put("/:id", updateProduct);
 
 module.exports = router;

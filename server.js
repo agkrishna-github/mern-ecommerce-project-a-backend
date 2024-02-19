@@ -14,14 +14,15 @@ const productRouter = require("./routes/productRoute");
 const brandRouter = require("./routes/brandRoute");
 const categoryRouter = require("./routes/categoryRoute");
 const blogCategoryRouter = require("./routes/blogCategoryRoute");
+const enquiryRouter = require("./routes/enquiryRoute");
+const colorRouter = require("./routes/colorRoute");
 // const orderRouter = require("./routes/orderRoute");
+connectDB();
 
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-
-connectDB();
 
 app.use("/api/user", authRouter);
 app.use("/api/blog", blogRouter);
@@ -30,6 +31,8 @@ app.use("/api/product", productRouter);
 app.use("/api/brand", brandRouter);
 app.use("/api/category", categoryRouter);
 app.use("/api/blogCategory", blogCategoryRouter);
+app.use("/api/enquiry", enquiryRouter);
+app.use("/api/color", colorRouter);
 // app.use("/api/orders", orderRouter);
 
 mongoose.connection.once("open", () => {

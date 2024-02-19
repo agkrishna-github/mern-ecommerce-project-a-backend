@@ -1,5 +1,6 @@
 const User = require("../models/userModel");
 const Order = require("../models/orderModel");
+const Cart = require("../models/cartModel");
 const asyncHandler = require("express-async-handler");
 const jwt = require("jsonwebtoken");
 
@@ -8,16 +9,18 @@ const createUser = asyncHandler(async (req, res) => {
     const newUser = await User.create(req.body);
     res.json(newUser);
   } catch (error) {
-    console.log(error);
+    throw new Error(error);
   }
 });
 
 const loginUser = asyncHandler(async (req, res) => {
-  console.log(req.body);
   const { email, password } = req.body;
-  const foundUser = await User.findOne({ email });
-  if (foundUser && (await foundUser.isPasswordMatched(password))) {
-    console.log("password matched");
+
+  try {
+    const foundUser = await User.findOne({ email });
+    if (!foundUser || !(await foundUser.isPasswordMatched(password)))
+      throw new Error("Enter details are not found");
+
     const refreshToken = jwt.sign(
       { id: foundUser._id },
       process.env.REFRESH_TOKEN,
@@ -25,42 +28,80 @@ const loginUser = asyncHandler(async (req, res) => {
         expiresIn: "3d",
       }
     );
-    console.log(refreshToken);
     const updatedUser = await User.findByIdAndUpdate(
       foundUser._id,
       { refreshToken: refreshToken },
       { new: true }
     );
-    console.log(updatedUser);
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      maxAge: 72 * 60 * 60 * 1000,
-    });
 
     const accessToken = jwt.sign(
-      { id: foundUser._id },
+      { id: updatedUser._id },
       process.env.ACCESS_TOKEN,
       { expiresIn: "1d" }
     );
 
+    res.cookie("jwt", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      maxAge: 72 * 60 * 60 * 1000,
+    });
     res.json({
-      _id: foundUser?._id,
-      firstname: foundUser?.firstname,
-      lastname: foundUser?.lastname,
-      email: foundUser?.email,
-      mobile: foundUser?.mobile,
+      _id: updatedUser?._id,
+      firstname: updatedUser?.firstname,
+      lastname: updatedUser?.lastname,
+      email: updatedUser?.email,
+      mobile: updatedUser?.mobile,
       token: accessToken,
     });
-  } else {
-    console.log("password not matched");
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+const getwishlist = asyncHandler(async (req, res) => {
+  const { id } = req.user;
+  try {
+    const userwishlist = await User.findById({ _id: id }).populate("wishlist");
+    console.log(userwishlist);
+    res.json(userwishlist);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+const getUserCart = asyncHandler(async (req, res) => {
+  const { id } = req.user;
+
+  try {
+    const cart = await Cart.find({ userId: id })
+      .populate("productId")
+      .populate("color");
+    res.json(cart);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+const userCart = asyncHandler(async (req, res) => {
+  const { id } = req.user;
+  const { productId, quantity, color, price } = req.body;
+  try {
+    let newCart = await new Cart({
+      userId: id,
+      productId,
+      quantity,
+      price,
+      color,
+    }).save();
+    res.json(newCart);
+  } catch (error) {
+    throw new Error(error);
   }
 });
 
 const loginadmin = asyncHandler(async (req, res) => {
-  console.log(req.body);
   const { email, password } = req.body;
   const foundadmin = await User.findOne({ email });
-  console.log(foundadmin);
   if (foundadmin.role !== "admin") throw new Error("Not Authorised");
   if (foundadmin && (await foundadmin.isPasswordMatched(password))) {
     const refreshToken = jwt.sign(
@@ -102,10 +143,11 @@ const loginadmin = asyncHandler(async (req, res) => {
   }
 });
 
+/*
+
 const getAllUsers = asyncHandler(async (req, res) => {
   try {
     const allusers = await User.find();
-    console.log(allusers);
     res.json(allusers);
   } catch (error) {
     throw new Error("Userns not found");
@@ -124,22 +166,97 @@ const getAllOrders = asyncHandler(async (req, res) => {
   }
 });
 
-const getwishlist = asyncHandler(async (req, res) => {
-  console.log(req.user);
+
+
+const cartUpdateQty = asyncHandler(async (req, res) => {
+  const { _id } = req.user;
+  const { cartItemId } = req.params;
+  const { quantity } = req.body;
+  try {
+    const cartItem = await Cart.findOne({ userId: _id, _id: cartItemId });
+    cartItem.quantity = quantity;
+    cartItem.save();
+    res.json(cartItem);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+const deleteUsercartnew = asyncHandler(async (req, res) => {
+  const { _id } = req.user;
+  const { cartItemId } = req.params;
+  try {
+    const deletedCartItem = await Cart.deleteOne({
+      userId: _id,
+      _id: cartItemId,
+    });
+    res.json(deletedCartItem);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+const createOrder = asyncHandler(async (req, res) => {
+  const {
+    shippingInfo,
+    orderItems,
+    totalPrice,
+    totalPriceAfterDiscount,
+    paymentInfo,
+  } = req.body;
+
   const { _id } = req.user;
   try {
-    const findUser = await User.findById(_id).populate("wishlist");
-    res.json(findUser);
+    const order = await Order.create({
+      shippingInfo,
+      orderItems,
+      totalPrice,
+      totalPriceAfterDiscount,
+      paymentInfo,
+      user: _id,
+    });
+    res.json({
+      order,
+      success: true,
+    });
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+const getallorders = asyncHandler(async (req, res) => {
+  const { _id } = req.user;
+  try {
+    const userorders = await Order.find({ user: _id })
+      .populate("user")
+      .populate("orderItems.product");
+    console.log(userorders);
+    res.json(userorders);
   } catch (error) {
     throw new Error(error);
   }
 });
 
 module.exports = {
-  createUser,
-  loginUser,
-  loginadmin,
+  
+  
   getAllUsers,
   getAllOrders,
+  
+  
+  
+  cartUpdateQty,
+  deleteUsercartnew,
+  createOrder,
+  getallorders,
+};
+ */
+
+module.exports = {
+  createUser,
+  loginUser,
   getwishlist,
+  getUserCart,
+  userCart,
+  loginadmin,
 };

@@ -26,12 +26,32 @@ const productSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    sold: {
+      type: Number,
+      default: 0,
+    },
+    tags: String,
+    ratings: [
+      {
+        star: Number,
+        comment: String,
+        postedBy: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+      },
+    ],
+    totalratings: {
+      type: String,
+      default: 0,
+    },
     images: [
       {
         public_id: String,
         url: String,
       },
     ],
+    color: [{ type: mongoose.Schema.Types.ObjectId, ref: "Color" }],
   },
   {
     timestamps: true,

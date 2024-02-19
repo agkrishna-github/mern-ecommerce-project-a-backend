@@ -19,6 +19,17 @@ const getAllBlogs = expressAsyncHandler(async (req, res) => {
   }
 });
 
+const getABlog = expressAsyncHandler(async (req, res) => {
+  console.log(req.params);
+  const { id } = req.params;
+  try {
+    const onlyBlog = await Blog.findById({ _id: id });
+    res.json(onlyBlog);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
 const deleteBlog = expressAsyncHandler(async (req, res) => {
   const { id } = req.params;
   try {
@@ -51,4 +62,4 @@ const updateBlog = expressAsyncHandler(async (req, res) => {
   }
 });
 
-module.exports = { createBlog, getAllBlogs, deleteBlog, updateBlog };
+module.exports = { createBlog, getAllBlogs, deleteBlog, updateBlog, getABlog };
