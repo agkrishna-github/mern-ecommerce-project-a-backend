@@ -21,7 +21,6 @@ const getAllPcategories = expressAsyncHandler(async (req, res) => {
 
 const updatePcategories = expressAsyncHandler(async (req, res) => {
   const { id } = req.params;
-  console.log(req.body);
   try {
     const updatedPcategory = await PCategory.findByIdAndUpdate(id, req.body, {
       new: true,

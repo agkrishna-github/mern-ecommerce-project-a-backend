@@ -20,7 +20,6 @@ const getAllBlogs = expressAsyncHandler(async (req, res) => {
 });
 
 const getABlog = expressAsyncHandler(async (req, res) => {
-  console.log(req.params);
   const { id } = req.params;
   try {
     const onlyBlog = await Blog.findById({ _id: id });
@@ -43,8 +42,6 @@ const deleteBlog = expressAsyncHandler(async (req, res) => {
 const updateBlog = expressAsyncHandler(async (req, res) => {
   const { id } = req.params;
 
-  console.log(req.body);
-  console.log(req.params);
   try {
     const updateddBlog = await Blog.findByIdAndUpdate(
       { _id: id },
@@ -55,7 +52,7 @@ const updateBlog = expressAsyncHandler(async (req, res) => {
       },
       { new: true }
     );
-    console.log(updateddBlog);
+
     res.json(updateddBlog);
   } catch (error) {
     throw new Error(error);

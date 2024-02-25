@@ -32,7 +32,7 @@ const deleteBrand = expressAsyncHandler(async (req, res) => {
 const getABrand = expressAsyncHandler(async (req, res) => {
   const { id } = req.params;
   const getAbrand = await Brand.findById({ _id: id });
-  // console.log(getAbrand);
+
   res.json(getAbrand);
   try {
   } catch (error) {
@@ -43,8 +43,6 @@ const getABrand = expressAsyncHandler(async (req, res) => {
 const updateBrand = expressAsyncHandler(async (req, res) => {
   const { id } = req.params;
 
-  console.log(id);
-  console.log(req.body);
   const updatedBrand = await Brand.findByIdAndUpdate({ _id: id }, req.body, {
     new: true,
   });

@@ -62,7 +62,7 @@ const getwishlist = asyncHandler(async (req, res) => {
   const { id } = req.user;
   try {
     const userwishlist = await User.findById({ _id: id }).populate("wishlist");
-    console.log(userwishlist);
+
     res.json(userwishlist);
   } catch (error) {
     throw new Error(error);
@@ -84,6 +84,7 @@ const getUserCart = asyncHandler(async (req, res) => {
 
 const userCart = asyncHandler(async (req, res) => {
   const { id } = req.user;
+
   const { productId, quantity, color, price } = req.body;
   try {
     let newCart = await new Cart({
@@ -143,6 +144,92 @@ const loginadmin = asyncHandler(async (req, res) => {
   }
 });
 
+const deleteUsercartnew = asyncHandler(async (req, res) => {
+  const { id } = req.user;
+  const { cartItemId } = req.params;
+  try {
+    const deletedCartItem = await Cart.deleteOne({
+      userId: id,
+      _id: cartItemId,
+    });
+    res.json(deletedCartItem);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+const cartUpdateQty = asyncHandler(async (req, res) => {
+  const { id } = req.user;
+  const { cartItemId } = req.params;
+  const { quantity } = req.body;
+  try {
+    const cartItem = await Cart.findOne({ userId: id, _id: cartItemId });
+    cartItem.quantity = quantity;
+    cartItem.save();
+    res.json(cartItem);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+const createOrder = asyncHandler(async (req, res) => {
+  console.log(req.body);
+  const {
+    shippingInfo,
+    orderItems,
+    totalPrice,
+    totalPriceAfterDiscount,
+    paymentInfo,
+  } = req.body;
+
+  const { id } = req.user;
+  try {
+    const order = await Order.create({
+      user: id,
+      shippingInfo,
+      paymentInfo,
+      orderItems,
+      totalPrice,
+      totalPriceAfterDiscount,
+    });
+    console.log(order);
+
+    order?.orderItems?.map(async (item) => {
+      const updatedCart = await Cart.findByIdAndDelete(item?.product);
+    });
+    res.json({
+      order,
+      success: true,
+    });
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+const getAllOrders = asyncHandler(async (req, res) => {
+  const { id } = req.user;
+  console.log(req.user);
+  try {
+    const userorders = await Order.find({ user: id });
+    console.log(userorders);
+    res.json(userorders);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+/* 
+const clearCart = asyncHandler(async (req, res) => {
+  try {
+    const userorders = await Cart.deleteMany({});
+
+    res.json({
+      message: "User Cart Deleted",
+    });
+  } catch (error) {
+    throw new Error(error);
+  }
+}); */
+
 /*
 
 const getAllUsers = asyncHandler(async (req, res) => {
@@ -168,61 +255,7 @@ const getAllOrders = asyncHandler(async (req, res) => {
 
 
 
-const cartUpdateQty = asyncHandler(async (req, res) => {
-  const { _id } = req.user;
-  const { cartItemId } = req.params;
-  const { quantity } = req.body;
-  try {
-    const cartItem = await Cart.findOne({ userId: _id, _id: cartItemId });
-    cartItem.quantity = quantity;
-    cartItem.save();
-    res.json(cartItem);
-  } catch (error) {
-    throw new Error(error);
-  }
-});
 
-const deleteUsercartnew = asyncHandler(async (req, res) => {
-  const { _id } = req.user;
-  const { cartItemId } = req.params;
-  try {
-    const deletedCartItem = await Cart.deleteOne({
-      userId: _id,
-      _id: cartItemId,
-    });
-    res.json(deletedCartItem);
-  } catch (error) {
-    throw new Error(error);
-  }
-});
-
-const createOrder = asyncHandler(async (req, res) => {
-  const {
-    shippingInfo,
-    orderItems,
-    totalPrice,
-    totalPriceAfterDiscount,
-    paymentInfo,
-  } = req.body;
-
-  const { _id } = req.user;
-  try {
-    const order = await Order.create({
-      shippingInfo,
-      orderItems,
-      totalPrice,
-      totalPriceAfterDiscount,
-      paymentInfo,
-      user: _id,
-    });
-    res.json({
-      order,
-      success: true,
-    });
-  } catch (error) {
-    throw new Error(error);
-  }
-});
 
 const getallorders = asyncHandler(async (req, res) => {
   const { _id } = req.user;
@@ -245,12 +278,11 @@ module.exports = {
   
   
   
-  cartUpdateQty,
   deleteUsercartnew,
-  createOrder,
-  getallorders,
+  
+ 
 };
- */
+*/
 
 module.exports = {
   createUser,
@@ -259,4 +291,8 @@ module.exports = {
   getUserCart,
   userCart,
   loginadmin,
+  deleteUsercartnew,
+  cartUpdateQty,
+  createOrder,
+  getAllOrders,
 };

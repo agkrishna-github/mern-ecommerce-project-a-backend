@@ -16,6 +16,7 @@ const categoryRouter = require("./routes/categoryRoute");
 const blogCategoryRouter = require("./routes/blogCategoryRoute");
 const enquiryRouter = require("./routes/enquiryRoute");
 const colorRouter = require("./routes/colorRoute");
+const homePageRouter = require("./routes/homePageRoute");
 // const orderRouter = require("./routes/orderRoute");
 connectDB();
 
@@ -33,7 +34,7 @@ app.use("/api/category", categoryRouter);
 app.use("/api/blogCategory", blogCategoryRouter);
 app.use("/api/enquiry", enquiryRouter);
 app.use("/api/color", colorRouter);
-// app.use("/api/orders", orderRouter);
+app.use("/api/homepage", homePageRouter);
 
 mongoose.connection.once("open", () => {
   console.log("Connected to MongoDB");

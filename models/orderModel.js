@@ -21,11 +21,11 @@ const orderSchema = new mongoose.Schema(
         type: String,
         required: true,
       },
-      city: {
+      state: {
         type: String,
         required: true,
       },
-      state: {
+      city: {
         type: String,
         required: true,
       },
@@ -43,11 +43,11 @@ const orderSchema = new mongoose.Schema(
       },
     },
     paymentInfo: {
-      razorpayOrderId: {
+      razorpayPaymentId: {
         type: String,
         required: true,
       },
-      razorpayPaymentId: {
+      razorpayOrderId: {
         type: String,
         required: true,
       },
@@ -64,6 +64,10 @@ const orderSchema = new mongoose.Schema(
           ref: "Color",
           required: true,
         },
+        title: {
+          type: String,
+          required: true,
+        },
         quantity: {
           type: Number,
           required: true,
@@ -72,6 +76,7 @@ const orderSchema = new mongoose.Schema(
           type: Number,
           required: true,
         },
+        image: String,
       },
     ],
     paidAt: {

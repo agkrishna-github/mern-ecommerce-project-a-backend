@@ -7,8 +7,12 @@ const {
   loginUser,
   getwishlist,
   getUserCart,
+  deleteUsercartnew,
   userCart,
   loginadmin,
+  cartUpdateQty,
+  createOrder,
+  getAllOrders,
 } = require("../controllers/userController");
 
 router.post("/register", createUser);
@@ -17,19 +21,21 @@ router.get("/wishlist", verifyjwt, getwishlist);
 router.get("/getuserCart", verifyjwt, getUserCart);
 router.post("/createUserCart", verifyjwt, userCart);
 router.post("/admin-login", loginadmin);
+router.delete("/deleteUsercart/:cartItemId", verifyjwt, deleteUsercartnew);
+router.put("/cartQtyUpdate/:cartItemId", verifyjwt, cartUpdateQty);
+router.post("/cart/create-order", verifyjwt, createOrder);
+router.get("/cart/getallorders", verifyjwt, getAllOrders);
+
 /* 
 const {
-  createUser,
-  loginUser,
-  
+
   getAllUsers,
-  getwishlist,
   
   
   cartUpdateQty,
-  deleteUsercartnew,
-  createOrder,
-  getallorders,
+  
+  
+  ,
 } = require("../controllers/userController");
 const {
   paymentVerification,
@@ -42,10 +48,9 @@ router.post("/login", loginUser);
 router.get("/all-users", getAllUsers);
 
 
-router.put("/cartQtyUpdate/:cartItemId", cartUpdateQty);
-router.delete("/deleteUsercart/:cartItemId", deleteUsercartnew);
-router.post("/cart/create-order", createOrder);
-router.get("/cart/getallorders", getallorders);
+
+
+
 // router.post("/order/checkout", checkout);
 // router.post("/order/paymentVerification", paymentVerification);
 
