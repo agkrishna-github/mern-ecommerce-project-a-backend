@@ -210,79 +210,16 @@ const getAllOrders = asyncHandler(async (req, res) => {
   const { id } = req.user;
   console.log(req.user);
   try {
-    const userorders = await Order.find({ user: id });
-    console.log(userorders);
+    const userorders = await Order.find({ user: id }).populate(
+      "orderItems.color"
+    );
+    /* .populate("orderItems.color")
+      .exec(); */
     res.json(userorders);
   } catch (error) {
     throw new Error(error);
   }
 });
-/* 
-const clearCart = asyncHandler(async (req, res) => {
-  try {
-    const userorders = await Cart.deleteMany({});
-
-    res.json({
-      message: "User Cart Deleted",
-    });
-  } catch (error) {
-    throw new Error(error);
-  }
-}); */
-
-/*
-
-const getAllUsers = asyncHandler(async (req, res) => {
-  try {
-    const allusers = await User.find();
-    res.json(allusers);
-  } catch (error) {
-    throw new Error("Userns not found");
-  }
-});
-
-const getAllOrders = asyncHandler(async (req, res) => {
-  try {
-    const alluserorders = await Order.find()
-      .populate("products.product")
-      .populate("orderby")
-      .exec();
-    res.json(alluserorders);
-  } catch (error) {
-    throw new Error(error);
-  }
-});
-
-
-
-
-
-const getallorders = asyncHandler(async (req, res) => {
-  const { _id } = req.user;
-  try {
-    const userorders = await Order.find({ user: _id })
-      .populate("user")
-      .populate("orderItems.product");
-    console.log(userorders);
-    res.json(userorders);
-  } catch (error) {
-    throw new Error(error);
-  }
-});
-
-module.exports = {
-  
-  
-  getAllUsers,
-  getAllOrders,
-  
-  
-  
-  deleteUsercartnew,
-  
- 
-};
-*/
 
 module.exports = {
   createUser,
